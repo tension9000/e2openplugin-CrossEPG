@@ -419,10 +419,10 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 			index += 1
 		if index == 5:
 			if self.config.download_weekly_enabled:
-				self["information"].setText(_("Day for scheduled weekly download"))
+				self["information"].setText(_("Set day for weekly scheduled download"))
 				return
 			elif self.config.download_xdaily_enabled:
-				self["information"].setText(_("Days to next download"))
+				self["information"].setText(_("Set days number for every x days scheduled download"))
 				return
 		if self.config.download_weekly_enabled == 0 and self.config.download_xdaily_enabled == 0 and self.config.download_daily_enabled == 0:
 			index += 1

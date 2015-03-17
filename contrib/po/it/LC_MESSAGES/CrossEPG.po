@@ -157,11 +157,11 @@ msgstr "Scaricare l'epg un giorno della settimana"
 msgid "Download epg every x days"
 msgstr "Scaricare l'epg una volta ogni x giorni"
 
-msgid "Day for scheduled weekly download"
-msgstr "Giorno stabilito per download settimanale"
+msgid "Set day for weekly scheduled download"
+msgstr "Impostare il giorno per il download settimanale"
 
-msgid "Days to next download"
-msgstr "X giorni al prossimo download"
+msgid "Set days number for every x days scheduled download"
+msgstr "Impostare il numero di giorni per il download programmato ogni x giorni"
 
 msgid "Set time for scheduled download"
 msgstr "Impostare l'ora del download programmato"
