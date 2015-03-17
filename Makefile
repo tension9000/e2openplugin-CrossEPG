@@ -143,6 +143,7 @@ install-standalone:
 	install -m 755 bin/crossepg_xmltv $(D)/usr/crossepg/
 	install -m 755 bin/crossepg_defragmenter $(D)/usr/crossepg/
 	install -m 644 bin/libcrossepg.so $(D)/usr/crossepg/
+	install -m 644 contrib/crossepg.config $(D)/usr/crossepg/
 	install -m 755 contrib/crossepg_epgmove.sh $(D)/usr/crossepg/
 	install -m 755 contrib/crossepg_prepare_pre_start.sh $(D)/usr/crossepg/
 	install -m 644 providers/* $(D)/usr/crossepg/providers/
