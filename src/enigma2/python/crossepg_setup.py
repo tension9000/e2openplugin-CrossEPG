@@ -249,7 +249,7 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 			if self.config.download_weekly_enabled:
 				self.list.append((_("Scheduled download on"), ConfigSelection(self.weekdays, scheduled_day)))
 			elif self.config.download_xdaily_enabled:
-				self.list.append((_("Scheduled download every x days"), ConfigInteger(default=self.config.download_xdaily_num, limits = (1, 99))))
+				self.list.append((_("Scheduled download every x days"), ConfigInteger(default=self.config.download_xdaily_num, limits = (2, 31))))
 			ttime = localtime()
 			ltime = (ttime[0], ttime[1], ttime[2], self.config.download_daily_hours, self.config.download_daily_minutes, ttime[5], ttime[6], ttime[7], ttime[8])
 			self.list.append((_("Scheduled download at"), ConfigClock(mktime(ltime))))
