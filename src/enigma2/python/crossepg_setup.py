@@ -107,7 +107,7 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 
 		self["information"] = Label("")
 		self["key_red"] = Button(_("Cancel"))
-		self["key_green"] = Button(_("OK"))
+		self["key_green"] = Button(_("Save"))
 		self["key_yellow"] = Button()
 		self["key_blue"] = Button("")
 		self["config_actions"] = NumberActionMap(["SetupActions", "InputAsciiActions", "KeyboardInputActions", "ColorActions", "MenuActions"],
