@@ -12,6 +12,8 @@ from boxbranding import getImageDistro
 from crossepglib import *
 from crossepg_locale import _
 
+from time import *
+
 import os
 import sys
 
@@ -64,7 +66,12 @@ class CrossEPG_Info(Screen):
 		else:
 			self.wrapper.init(CrossEPG_Wrapper.CMD_INFO, self.config.db_root)
 
-		self["next_update"].text = _("Next update time: %s") % (self.config.next_update_time)
+		next_update_time = self.config.next_update_time
+		if next_update_time == -1:
+			text = _("Next update time: Not scheduled")
+		else:
+			text = _("Next update time: %s") % strftime("%c", localtime(next_update_time))
+		self["next_update"].text = text
 
 		self.container = eConsoleAppContainer()
 		self.container.appClosed.append(self.appClosed)

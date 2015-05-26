@@ -360,7 +360,7 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 			i += 1
 
 		if auto == "disabled":
-			self.config.next_update_time = _("Not scheduled")
+			self.config.next_update_time = -1
 		else:
 			self.config.next_update_time = self.setNextDownloadTime(auto, daynum)
 
@@ -482,9 +482,9 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 					while (int(schedule_time)-30) < nownow:
 						schedule_time += 3600
 
-			return "%s" % strftime("%c", localtime(schedule_time))
+			return schedule_time
 		else:
-			return "N/A"
+			return -1
 
 	def keySave(self):
 		self.config.last_full_download_timestamp = 0

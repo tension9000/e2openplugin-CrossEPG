@@ -144,7 +144,7 @@ class CrossEPG_Auto:
 			self.crossepgtimer.startLongTimer(next)
 		else:
 			CrossEPGTime = -1
-		self.config.next_update_time = "%s" % strftime("%c", localtime(CrossEPGTime))
+		self.config.next_update_time = CrossEPGTime
 		self.config.save()
 		print "[CrossEPG_Auto] Time set to", strftime("%c", localtime(CrossEPGTime)), strftime("(now=%c)", localtime(now))
 		return CrossEPGTime

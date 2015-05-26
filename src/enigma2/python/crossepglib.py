@@ -60,7 +60,7 @@ class CrossEPG_Config:
 	download_daily_minutes = 0
 	download_daily_reboot = 0
 	download_standby_enabled = 0
-	next_update_time = _("Not scheduled")
+	next_update_time = -1
 	download_manual_reboot = 0
 	csv_import_enabled = 0
 	show_plugin = 1
@@ -124,7 +124,7 @@ class CrossEPG_Config:
 						elif key == "download_daily_minutes":
 							self.download_daily_minutes = int(value);
 						elif key == "next_update_time":
-							self.next_update_time = value;
+							self.next_update_time = int(value);
 						elif key == "download_daily_reboot":
 							self.download_daily_reboot = int(value);
 						elif key == "download_manual_reboot":
@@ -176,7 +176,7 @@ class CrossEPG_Config:
 		f.write("download_daily_enabled=%d\n" % (self.download_daily_enabled))
 		f.write("download_daily_hours=%d\n" % (self.download_daily_hours))
 		f.write("download_daily_minutes=%d\n" % (self.download_daily_minutes))
-		f.write("next_update_time=%s\n" % (self.next_update_time))
+		f.write("next_update_time=%d\n" % (self.next_update_time))
 		f.write("download_daily_reboot=%d\n" % (self.download_daily_reboot))
 		f.write("download_manual_reboot=%d\n" % (self.download_manual_reboot))
 		f.write("download_standby_enabled=%d\n" % (self.download_standby_enabled))
