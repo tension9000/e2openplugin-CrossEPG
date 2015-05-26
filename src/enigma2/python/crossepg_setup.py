@@ -289,38 +289,38 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 		xdailycache = self.config.download_xdaily_enabled
 		dailycache = self.config.download_daily_enabled
 		standbycache = self.config.download_standby_enabled
-		auto = "disabled"
+		self.auto = "disabled"
 		if getImageDistro() != "openvix":
 			if self.list[i+2][1].getIndex() == 0:
 				self.config.download_weekly_enabled = 0
 				self.config.download_xdaily_enabled = 0
 				self.config.download_daily_enabled = 0
 				self.config.download_standby_enabled = 0
-				auto = "disabled"
+				self.auto = "disabled"
 			elif self.list[i+2][1].getIndex() == 1:
 				self.config.download_weekly_enabled = 1
 				self.config.download_xdaily_enabled = 0
 				self.config.download_daily_enabled = 0
 				self.config.download_standby_enabled = 0
-				auto = "weekly"
+				self.auto = "weekly"
 			elif self.list[i+2][1].getIndex() == 2:
 				self.config.download_weekly_enabled = 0
 				self.config.download_xdaily_enabled = 1
 				self.config.download_daily_enabled = 0
 				self.config.download_standby_enabled = 0
-				auto = "xdaily"
+				self.auto = "xdaily"
 			elif self.list[i+2][1].getIndex() == 3:
 				self.config.download_weekly_enabled = 0
 				self.config.download_xdaily_enabled = 0
 				self.config.download_daily_enabled = 1
 				self.config.download_standby_enabled = 0
-				auto = "daily"
+				self.auto = "daily"
 			elif self.list[i+2][1].getIndex() == 4:
 				self.config.download_weekly_enabled = 0
 				self.config.download_xdaily_enabled = 0
 				self.config.download_daily_enabled = 0
 				self.config.download_standby_enabled = 1
-				auto = "standby"
+				self.auto = "standby"
 		else:
 			if int(self.list[i+2][1].getIndex()) == 0:
 				self.config.download_weekly_enabled = 0
@@ -339,17 +339,17 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 			redraw = True
 
 		i += 3
-		daynum = 0
+		self.daynum = 0
 		if weeklycache:
 			self.config.download_weekday = self.list[i][1].getValue()
-			daynum = self.list[i][1].getIndex()
+			self.daynum = self.list[i][1].getIndex()
 			i += 1
 			self.config.download_daily_hours = self.list[i][1].getValue()[0]
 			self.config.download_daily_minutes = self.list[i][1].getValue()[1]
 			i += 1
 		elif xdailycache:
 			self.config.download_xdaily_num = self.list[i][1].getValue()
-			daynum = self.list[i][1].getValue()
+			self.daynum = self.list[i][1].getValue()
 			i += 1
 			self.config.download_daily_hours = self.list[i][1].getValue()[0]
 			self.config.download_daily_minutes = self.list[i][1].getValue()[1]
@@ -358,11 +358,6 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 			self.config.download_daily_hours = self.list[i][1].getValue()[0]
 			self.config.download_daily_minutes = self.list[i][1].getValue()[1]
 			i += 1
-
-		if auto == "disabled":
-			self.config.next_update_time = _("Not scheduled")
-		else:
-			self.config.next_update_time = self.setNextDownloadTime(auto, daynum)
 
 		if not self.fastpatch:
 			self.config.download_daily_reboot = int(self.list[i][1].getValue())
@@ -465,14 +460,16 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 		nowt = time()
 		now = localtime(nowt)
 		schedule_time = int(mktime((now.tm_year, now.tm_mon, now.tm_mday, self.config.download_daily_hours, self.config.download_daily_minutes, 0, now.tm_wday, now.tm_yday, now.tm_isdst)))
+
 		if auto == "weekly":
 			schedule_time += (daynum - now.tm_wday)*24*3600
 
+		next_update_time = self.config.next_update_time
 		nownow = int(time())
 		if schedule_time > 0:
 			if schedule_time < nownow:
 				if auto == "weekly":
-					schedule_time += 24*7*3600
+					schedule_time += 7*24*3600
 				elif auto == "xdaily":
 					schedule_time += daynum*24*3600
 				elif auto == "daily":
@@ -482,11 +479,15 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 					while (int(schedule_time)-30) < nownow:
 						schedule_time += 3600
 
-			return "%s" % strftime("%c", localtime(schedule_time))
+			return schedule_time
 		else:
-			return "N/A"
+			return -1
 
 	def keySave(self):
+		if self.auto == "disabled":
+			self.config.next_update_time = -1
+		else:
+			self.config.next_update_time = self.setNextDownloadTime(self.auto, self.daynum)
 		self.config.last_full_download_timestamp = 0
 		self.config.last_partial_download_timestamp = 0
 		self.config.configured = 1
