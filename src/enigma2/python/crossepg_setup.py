@@ -456,25 +456,24 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 		else:
 			self.close()
 
-	def setNextDownloadTime(self, auto, daynum):
+	def setNextDownloadTime(self):
 		nowt = time()
 		now = localtime(nowt)
 		schedule_time = int(mktime((now.tm_year, now.tm_mon, now.tm_mday, self.config.download_daily_hours, self.config.download_daily_minutes, 0, now.tm_wday, now.tm_yday, now.tm_isdst)))
 
-		if auto == "weekly":
-			schedule_time += (daynum - now.tm_wday)*24*3600
-
-		next_update_time = self.config.next_update_time
+		if self.auto == "weekly":
+			schedule_time += (self.daynum - now.tm_wday)*24*3600
+		
 		nownow = int(time())
 		if schedule_time > 0:
 			if schedule_time < nownow:
-				if auto == "weekly":
+				if self.auto == "weekly":
 					schedule_time += 7*24*3600
-				elif auto == "xdaily":
-					schedule_time += daynum*24*3600
-				elif auto == "daily":
+				elif self.auto == "xdaily":
+					schedule_time += self.daynum*24*3600
+				elif self.auto == "daily":
 					schedule_time += 24*3600
-				elif auto == "standby":
+				elif self.auto == "standby":
 					schedule_time += 3600
 					while (int(schedule_time)-30) < nownow:
 						schedule_time += 3600
@@ -487,7 +486,7 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 		if self.auto == "disabled":
 			self.config.next_update_time = -1
 		else:
-			self.config.next_update_time = self.setNextDownloadTime(self.auto, self.daynum)
+			self.config.next_update_time = self.setNextDownloadTime()
 		self.config.last_full_download_timestamp = 0
 		self.config.last_partial_download_timestamp = 0
 		self.config.configured = 1
