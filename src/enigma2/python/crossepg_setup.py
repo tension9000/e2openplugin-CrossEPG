@@ -18,6 +18,7 @@ from Plugins.Plugin import PluginDescriptor
 from boxbranding import getImageDistro
 from crossepglib import *
 from crossepg_locale import _
+from crossepg_auto import getWeekdayNum
 
 from time import *
 
@@ -219,21 +220,26 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 		if self.config.lamedb != "lamedb":
 			lamedb_default = self.config.lamedb.replace("lamedb.", "").replace(".", " ")
 
-		scheduled_default = None
 		if self.config.download_standby_enabled:
 			scheduled_default = _("Every hour (only in standby)")
+			self.auto = "standby"
 		elif self.config.download_daily_enabled:
 			scheduled_default = _("Once a day")
+			self.auto = "daily"
 		elif self.config.download_xdaily_enabled:
 			scheduled_default = _("Every x days")
+			self.auto = "xdaily"
+			self.daynum = self.config.download_xdaily_num
 		elif self.config.download_weekly_enabled:
 			scheduled_default = _("Once a week")
+			self.auto = "weekly"
+			scheduled_day = self.config.download_weekday
+			self.daynum = getWeekdayNum(scheduled_day)
 		else:
 			scheduled_default = _("Disabled")
+			self.auto = "disabled"
+			scheduled_day = _("sunday")
 
-		scheduled_day = _("sunday")
-		if self.config.download_weekly_enabled:
-			scheduled_day = self.config.download_weekday
 
 		if getImageDistro() != "openvix":
 			self.list.append((_("Storage device"), ConfigSelection(self.mountdescription, device_default)))
@@ -339,7 +345,6 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 			redraw = True
 
 		i += 3
-		self.daynum = 0
 		if weeklycache:
 			self.config.download_weekday = self.list[i][1].getValue()
 			self.daynum = self.list[i][1].getIndex()
@@ -456,7 +461,9 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 		else:
 			self.close()
 
-	def setNextDownloadTime(self):
+	def getNextDownloadTime(self):
+		if self.auto == "disabled":
+			return -1
 		nowt = time()
 		now = localtime(nowt)
 		schedule_time = int(mktime((now.tm_year, now.tm_mon, now.tm_mday, self.config.download_daily_hours, self.config.download_daily_minutes, 0, now.tm_wday, now.tm_yday, now.tm_isdst)))
@@ -483,10 +490,7 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 			return -1
 
 	def keySave(self):
-		if self.auto == "disabled":
-			self.config.next_update_time = -1
-		else:
-			self.config.next_update_time = self.setNextDownloadTime()
+		self.config.next_update_time = self.getNextDownloadTime()
 		self.config.last_full_download_timestamp = 0
 		self.config.last_partial_download_timestamp = 0
 		self.config.configured = 1
