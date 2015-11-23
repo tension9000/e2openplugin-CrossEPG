@@ -466,7 +466,7 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 			return -1
 		nowt = time()
 		now = localtime(nowt)
-		schedule_time = int(mktime(now.tm_year, now.tm_mon, now.tm_mday, self.config.download_daily_hours, self.config.download_daily_minutes, 0, now.tm_wday, now.tm_yday, now.tm_isdst))
+		schedule_time = int(mktime((now.tm_year, now.tm_mon, now.tm_mday, self.config.download_daily_hours, self.config.download_daily_minutes, 0, now.tm_wday, now.tm_yday, now.tm_isdst)))
 
 		if self.auto == "weekly":
 			schedule_time += (self.daynum - now.tm_wday)*24*3600
