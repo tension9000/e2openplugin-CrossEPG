@@ -3,6 +3,7 @@ from enigma import getDesktop, iPlayableService, eTimer, eServiceReference
 from Components.Label import Label
 from Components.Pixmap import Pixmap
 from Components.ProgressBar import ProgressBar
+from Components.Sources.FrontendStatus import FrontendStatus
 from Components.ServiceEventTracker import ServiceEventTracker
 from Components.ActionMap import NumberActionMap
 from Components.config import config
@@ -60,6 +61,9 @@ class CrossEPG_Downloader(Screen):
 		}, -1)
 
 		self.frontend = None
+
+		self["Frontend"] = FrontendStatus(frontend_source = lambda : self.frontend, update_interval = 100)
+		
 		self.rawchannel = None
 		self.retValue = True
 		self.provider_index = 0
