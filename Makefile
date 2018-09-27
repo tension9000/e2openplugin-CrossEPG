@@ -59,7 +59,11 @@ FTP_PASSWORD = sifteam
 
 TARGET_ARCH ?= mips
 
-all: clean $(CONVERTER_BIN) $(DBINFO_BIN) $(DOWNLOADER_BIN) $(EPGCOPY_BIN) $(IMPORTER_BIN) $(EXPORTER_BIN) $(XMLTV_BIN) $(DEFRAGMENTER_BIN) $(SWIGS_LIBS) $(SHARED_LIBS)
+all:
+	$(MAKE) clean
+	$(MAKE) build
+
+build: $(CONVERTER_BIN) $(DBINFO_BIN) $(DOWNLOADER_BIN) $(EPGCOPY_BIN) $(IMPORTER_BIN) $(EXPORTER_BIN) $(XMLTV_BIN) $(DEFRAGMENTER_BIN) $(SWIGS_LIBS) $(SHARED_LIBS)
 
 $(BIN_DIR):
 	mkdir -p $@
@@ -96,7 +100,7 @@ $(XMLTV_OBJS):
 $(DEFRAGMENTER_OBJS):
 	$(CC) $(CFLAGS) -c -o $@ $(@:.o=.c)
 
-$(SWIGS_LIBS): $(SWIGS_OBJS)
+$(SWIGS_LIBS): $(OBJS) $(SWIGS_OBJS)
 	$(CC) $(LDFLAGS) -shared -o $@ $(OBJS) $(SWIGS_OBJS) -lxml2 -lz -lm -lpthread -lcurl
 	$(STRIP) $@
 
