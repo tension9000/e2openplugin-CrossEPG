@@ -5,17 +5,19 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: enigma 2-plugin-systemplugins-crossepg-0.6.2+git0+5531246976cc69ec8d4a089a33c84a2b2c73d020-r9\n"
+"Project-Id-Version: enigma 2-plugin-systemplugins-"
+"crossepg-0.6.2+git0+5531246976cc69ec8d4a089a33c84a2b2c73d020-r9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-01 15:53+0000\n"
-"PO-Revision-Date: 2012-03-07 10:50+0100\n"
-"Last-Translator: R.L. van der Does\n"
+"POT-Creation-Date: 2012-03-01 15:55+0000\n"
+"PO-Revision-Date: 2018-09-27 10:04+0200\n"
+"Last-Translator: Rob van der Does <RobvanderDoes@Gmail.com>\n"
 "Language-Team: none\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ASCII\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.1.1\n"
 
 #: ../src/enigma2/python/crossepg_xepgdb_update.py:70
 #: ../src/enigma2/python/crossepg_rytec_update.py:71
@@ -43,8 +45,7 @@ msgstr "Over"
 msgid "Aliases db size: %s"
 msgstr "Grootte aliassen database: %s"
 
-#: ../src/enigma2/python/plugin.py:30
-#: ../src/enigma2/python/plugin.py:35
+#: ../src/enigma2/python/plugin.py:30 ../src/enigma2/python/plugin.py:35
 #: ../src/enigma2/python/plugin.py:40
 msgid "An EPG downloader"
 msgstr "Een  EPG downloader"
@@ -80,7 +81,7 @@ msgstr "Kan de xepgdb bronnen niet bereiken"
 #: ../src/enigma2/python/crossepg_info.py:75
 #, python-format
 msgid "Channels count: %s"
-msgstr "aantal kanalen: %s"
+msgstr "Aantal kanalen: %s"
 
 #: ../src/enigma2/python/crossepg_menu.py:62
 msgid "Configure"
@@ -95,12 +96,9 @@ msgstr "Bezig met data converteren"
 msgid "Creation time: %s"
 msgstr "Gemaakt om: %s"
 
-#: ../src/enigma2/python/plugin.py:29
-#: ../src/enigma2/python/plugin.py:34
-#: ../src/enigma2/python/plugin.py:39
-#: ../src/enigma2/python/plugin.py:45
-#: ../src/enigma2/python/plugin.py:50
-#: ../src/enigma2/python/plugin.py:55
+#: ../src/enigma2/python/plugin.py:29 ../src/enigma2/python/plugin.py:34
+#: ../src/enigma2/python/plugin.py:39 ../src/enigma2/python/plugin.py:45
+#: ../src/enigma2/python/plugin.py:50 ../src/enigma2/python/plugin.py:55
 #: ../src/enigma2/python/plugin.py:61
 #: ../src/enigma2/python/crossepg_xepgdb_update.py:40
 #: ../src/enigma2/python/crossepg_rytec_update.py:38
@@ -136,8 +134,7 @@ msgstr "CrossEPG automatische acties"
 msgid "CrossEPG error: %s"
 msgstr "CrossEPG fout: %s"
 
-#: ../src/enigma2/python/plugin.py:46
-#: ../src/enigma2/python/plugin.py:51
+#: ../src/enigma2/python/plugin.py:46 ../src/enigma2/python/plugin.py:51
 msgid "CrossEPG setup panel"
 msgstr "CrossEPG instellingen paneel"
 
@@ -182,8 +179,7 @@ msgstr "Download nu"
 msgid "Download on tune"
 msgstr "Download indien afgestemd"
 
-#: ../src/enigma2/python/plugin.py:29
-#: ../src/enigma2/python/plugin.py:34
+#: ../src/enigma2/python/plugin.py:29 ../src/enigma2/python/plugin.py:34
 #: ../src/enigma2/python/plugin.py:39
 msgid "Downloader"
 msgstr "Downloader"
@@ -334,13 +330,17 @@ msgstr "OpenTV providers"
 #: ../src/enigma2/python/crossepg_setup.py:154
 msgid ""
 "PLEASE READ!\n"
-"A hard drive or an usb pen is STRONGLY SUGGESTED. If you still want use your internal flash pay attention to:\n"
-"(1) If you don't have enough free space your box may completely block and you need to flash it again\n"
+"A hard drive or an usb pen is HARDLY SUGGESTED. If you still want use your "
+"internal flash pay attention to:\n"
+"(1) If you don't have enough free space your box may completely block and "
+"you need to flash it again\n"
 "(2) Many write operations on your internal flash may damage your flash memory"
 msgstr ""
 "BELANGRIJK!\n"
-"Een harde schijf of een USB-stick wordt sterk aanbevolen. Als u toch het interne flash geheugen wilt gebruiken, let dan op:\n"
-"(1) Als u niet genoeg geheugen heeft, kan uw Dreambox vastlopen waarna u opnieuw moet flashen\n"
+"Een harde schijf of een USB-stick wordt sterk aanbevolen. Als u toch het "
+"interne flash geheugen wilt gebruiken, let dan op:\n"
+"(1) Als u niet genoeg geheugen heeft, kan uw ontvanger vastlopen waarna u "
+"opnieuw moet flashen\n"
 "(2) Veel schrijfoperaties kunnen op den duur uw flash geheugen beschadigen"
 
 #: ../src/enigma2/python/crossepg_importer.py:97
@@ -379,7 +379,7 @@ msgstr "Providers start volgorde"
 #: ../src/enigma2/python/crossepglib.py:496
 #, python-format
 msgid "Read %s"
-msgstr "lees %s"
+msgstr "Lees %s"
 
 #: ../src/enigma2/python/crossepglib.py:444
 msgid "Reading channels"
@@ -513,10 +513,12 @@ msgstr "Versie: %s"
 
 #: ../src/enigma2/python/crossepg_setup.py:304
 msgid ""
-"When the decoder is in standby opentv providers will be automatically downloaded every hour.\n"
+"When the decoder is in standby opentv providers will be automatically "
+"downloaded every hour.\n"
 "XMLTV providers will be always downloaded only once a day"
 msgstr ""
-"Als de ontvanger in standby is, worden opentv providers automatisch elk uur gedownload.\n"
+"Als de ontvanger in standby is, worden opentv providers automatisch elk uur "
+"gedownload.\n"
 "XMLTV providers worden altijs eenmaal per dag gedownload."
 
 #: ../src/enigma2/python/crossepg_providers.py:35
@@ -562,4 +564,3 @@ msgstr "providers"
 #: ../src/enigma2/python/crossepg_menu.py:53
 msgid "unknow version"
 msgstr "onbekende versie"
-
