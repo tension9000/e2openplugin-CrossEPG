@@ -65,8 +65,8 @@ static char descriptor_filename[256];
 static char index_filename[256];
 static char aliases_filename[256];
 
-static uint32_t db_creation_time = 0;
-static uint32_t db_update_time = 0;
+static time_t db_creation_time = 0;
+static time_t db_update_time = 0;
 
 FILE *epgdb_get_fdd () { return fd_d; }
 time_t epgdb_get_creation_time () { return db_creation_time; }
@@ -164,8 +164,8 @@ bool epgdb_save (void(*progress_callback)(int, int))
 	fwrite (&revision, sizeof (unsigned char), 1, fd_h);
 	
 	db_update_time = time (NULL);
-	fwrite (&db_creation_time, sizeof (uint32_t), 1, fd_h);
-	fwrite (&db_update_time, sizeof (uint32_t), 1, fd_h);
+	fwrite (&db_creation_time, sizeof (db_creation_time), 1, fd_h);
+	fwrite (&db_update_time, sizeof (db_update_time), 1, fd_h);
 	
 	channels_count = 0;
 	fwrite (&channels_count, sizeof (uint32_t), 1, fd_h); // write the exact value at end
@@ -300,8 +300,8 @@ bool epgdb_load ()
 	fread (&revision, sizeof (unsigned char), 1, fd_h);
 	if (revision != DB_REVISION) return false;
 	
-	fread (&db_creation_time, sizeof (uint32_t), 1, fd_h);
-	fread (&db_update_time, sizeof (uint32_t), 1, fd_h);
+	fread (&db_creation_time, sizeof (db_creation_time), 1, fd_h);
+	fread (&db_update_time, sizeof (db_update_time), 1, fd_h);
 	
 	fread (&channels_count, sizeof (uint32_t), 1, fd_h);
 	for (i=0; i<channels_count; i++)
