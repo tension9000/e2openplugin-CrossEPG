@@ -1,0 +1,6 @@
+<screen position="80,100" size="800,500">
+		<widget name="CrossEpgLogScrollLabel" font="Fixed;22" position="5,5" size="e-10,e-55" />
+		<ePixmap pixmap="skin_default/buttons/red.png" position="e-305,e-45" zPosition="1" size="140,40" alphatest="on" />
+		<widget name="red" position="e-305,e-45" size="140,40" zPosition="2" valign="center" halign="center" font="Regular;20" transparent="1" backgroundColor="blue" />
+</screen>
+
