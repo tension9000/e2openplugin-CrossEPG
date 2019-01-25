@@ -15,6 +15,11 @@ from time import *
 
 import os
 
+def getWeekdayNum(wday):
+	print "[CrossEPG_Auto] wday: ", wday
+	weekdays = {_('monday'): 1, _('tuesday'): 2, _('wednesday'): 3, _('thursday'): 4, _('friday'): 5, _('saturday'): 6, _('sunday'): 0}
+	return weekdays[wday]
+
 retrycount = 0
 autoCrossEPGTimer = None
 def CrossEPGautostart(reason, session=None, **kwargs):
@@ -67,7 +72,7 @@ class CrossEPG_Auto:
 
 		now = int(time())
 		global CrossEPGTime
-		if self.config.download_standby_enabled or self.config.download_daily_enabled:
+		if self.config.download_auto != "disabled":
 			print "[CrossEPG_Auto] Schedule Enabled at ", strftime("%c", localtime(now))
 			if now > 1262304000:
 				self.crossepgdate()
@@ -97,7 +102,10 @@ class CrossEPG_Auto:
 		self.config.load()
 		nowt = time()
 		now = localtime(nowt)
-		return int(mktime((now.tm_year, now.tm_mon, now.tm_mday, self.config.download_daily_hours, self.config.download_daily_minutes, 0, now.tm_wday, now.tm_yday, now.tm_isdst)))
+		epgtime = int(mktime((now.tm_year, now.tm_mon, now.tm_mday, self.config.download_daily_hours, self.config.download_daily_minutes, 0, now.tm_wday, now.tm_yday, now.tm_isdst)))
+		if self.config.download_auto == "weekly":
+			epgtime += (getWeekdayNum(self.config.download_weekday) - now.tm_wday)*24*3600
+		return epgtime
 
 	def crossepgdate(self, atLeast = 0):
 		self.crossepgtimer.stop()
@@ -106,11 +114,17 @@ class CrossEPG_Auto:
 		now = int(time())
 		if CrossEPGTime > 0:
 			if CrossEPGTime < now + atLeast:
-				if self.config.download_daily_enabled:
+				if self.config.download_auto == "weekly":
+					print "[CrossEPG_Auto] crossepgtime weekly:", strftime("%c", localtime(CrossEPGTime))
+					CrossEPGTime += 24*7*3600
+				elif self.config.download_auto == "xdaily":
+					print "[CrossEPG_Auto] crossepgtime xdaily:", strftime("%c", localtime(CrossEPGTime))
+					CrossEPGTime += self.config.download_daily_num*24*3600
+				elif self.config.download_auto == "daily":
 					CrossEPGTime += 24*3600
 					while (int(CrossEPGTime)-30) < now:
 						CrossEPGTime += 24*3600
-				elif self.config.download_standby_enabled:
+				elif self.config.download_auto == "standby":
 					CrossEPGTime += 3600
 					while (int(CrossEPGTime)-30) < now:
 						CrossEPGTime += 3600
@@ -118,6 +132,8 @@ class CrossEPG_Auto:
 			self.crossepgtimer.startLongTimer(next)
 		else:
 			CrossEPGTime = -1
+		self.config.next_update_time = CrossEPGTime
+		self.config.save()
 		print "[CrossEPG_Auto] Time set to", strftime("%c", localtime(CrossEPGTime)), strftime("(now=%c)", localtime(now))
 		return CrossEPGTime
 
@@ -132,10 +148,10 @@ class CrossEPG_Auto:
 		atLeast = 0
 		if wake - now < 60:
 			atLeast = 60
-			print "[CrossEPG_Auto] onTimer occured at", strftime("%c", localtime(now))
+			print "[CrossEPG_Auto] onTimer occurred at", strftime("%c", localtime(now))
 			from Screens.Standby import inStandby
 			self.config.load()
-			if (self.config.download_standby_enabled and inStandby) or self.config.download_daily_enabled:
+			if (self.config.download_auto == "standby" and inStandby) or self.config.download_auto in ("daily", "xdaily", "weekly"):
 				if self.lock or self.session.nav.RecordTimer.isRecording() or abs(self.session.nav.RecordTimer.getNextRecordingTime() - time()) <= 900 or abs(self.session.nav.RecordTimer.getNextZapTime() - time()) <= 900:
 					print "[CrossEPG_Auto] poll delaying as recording."
 					self.doCrossEPG(False)
@@ -175,9 +191,9 @@ class CrossEPG_Auto:
 	def doautostartdownload(self):
 		self.config.load()
 		from Screens.Standby import inStandby
-		if self.config.download_standby_enabled and inStandby:
+		if self.config.download_auto == "standby" and inStandby:
 			self.osd = False
-		elif self.config.download_daily_enabled:
+		elif self.config.download_auto in ("daily", "xdaily", "weekly"):
 			self.osd = (inStandby == None)
 		self.config.deleteLog()
 		self.download(self.config.providers)
@@ -296,7 +312,7 @@ class CrossEPG_Auto:
 
 	def doneConfiguring(self):
 		now = int(time())
-		if self.config.download_standby_enabled or self.config.download_daily_enabled:
+		if self.config.download_auto != "disabled":
 			if autoCrossEPGTimer is not None:
 				print "[CrossEPG_Auto] Schedule Enabled at", strftime("%c", localtime(now))
 				autoCrossEPGTimer.crossepgdate()

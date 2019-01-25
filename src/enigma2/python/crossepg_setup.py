@@ -3,7 +3,7 @@ from enigma import getDesktop
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 
-from Components.config import KEY_LEFT, KEY_RIGHT, KEY_HOME, KEY_END, KEY_0, KEY_ASCII, ConfigYesNo, ConfigSelection, ConfigClock, config, configfile
+from Components.config import KEY_LEFT, KEY_RIGHT, KEY_HOME, KEY_END, KEY_0, KEY_ASCII, ConfigYesNo, ConfigSelection, ConfigClock, ConfigInteger, config, configfile
 from Components.ConfigList import ConfigListScreen
 from Components.Button import Button
 from Components.Label import Label
@@ -18,6 +18,7 @@ from Plugins.Plugin import PluginDescriptor
 from boxbranding import getImageDistro
 from crossepglib import *
 from crossepg_locale import _
+from crossepg_auto import getWeekdayNum
 
 from time import *
 
@@ -53,6 +54,7 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 		self.mountpoint = []
 		self.mountdescription = []
 		self.automatictype = []
+		self.weekdays = []
 
 		self.show_extension = self.config.show_extension
 		self.show_plugin = self.config.show_plugin
@@ -85,9 +87,21 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 				self.lamedbs_desc.append(lamedb.replace("lamedb.", "").replace(".", " "))
 
 		# make automatic type entries
-		self.automatictype.append(_("disabled"))
-		self.automatictype.append(_("once a day"))
-		self.automatictype.append(_("every hour (only in standby)"))
+		self.automatictype.append(_("Disabled"))
+		self.automatictype.append(_("Once a week"))
+		self.automatictype.append(_("Every x days"))
+		self.automatictype.append(_("Once a day"))
+		if getImageDistro() != "openvix":
+			self.automatictype.append(_("Every hour (only in standby)"))
+
+		# make weekday entries
+		self.weekdays.append(_("sunday"))
+		self.weekdays.append(_("monday"))
+		self.weekdays.append(_("tuesday"))
+		self.weekdays.append(_("wednesday"))
+		self.weekdays.append(_("thursday"))
+		self.weekdays.append(_("friday"))
+		self.weekdays.append(_("saturday"))
 
 		self.onChangedEntry = [ ]
 		self.list = []
@@ -202,30 +216,39 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 			if device_default == None:
 				self.config.db_root = self.mountpoint[0]
 				device_default = self.mountdescription[0]
-
+		if getImageDistro() != "openvix":
+			self.list.append((_("Storage device"), ConfigSelection(self.mountdescription, device_default)))
 		lamedb_default = _("main lamedb")
 		if self.config.lamedb != "lamedb":
 			lamedb_default = self.config.lamedb.replace("lamedb.", "").replace(".", " ")
-
-		scheduled_default = None
-		if self.config.download_standby_enabled:
-			scheduled_default = _("every hour (only in standby)")
-		elif self.config.download_daily_enabled:
-			scheduled_default = _("once a day")
-		else:
-			scheduled_default = _("disabled")
-
-		if getImageDistro() != "openvix":
-			self.list.append((_("Storage device"), ConfigSelection(self.mountdescription, device_default)))
 		if len(self.lamedbs_desc) > 1:
 			self.list.append((_("Preferred lamedb"), ConfigSelection(self.lamedbs_desc, lamedb_default)))
-
 		self.list.append((_("Enable csv import"), ConfigYesNo(self.config.csv_import_enabled > 0)))
 		if getImageDistro() != "openvix":
 			self.list.append((_("Force epg reload on boot"), ConfigYesNo(self.config.force_load_on_boot > 0)))
-		self.list.append((_("Scheduled download"), ConfigSelection(self.automatictype, scheduled_default)))
 
-		if self.config.download_daily_enabled:
+		self.auto = self.config.download_auto
+		if self.auto == "disabled":
+			scheduled_default = _("Disabled")
+			scheduled_day = _("sunday")
+		else:
+			if getImageDistro() != "openvix" and self.auto == "standby":
+				scheduled_default = _("Every hour (only in standby)")
+			elif self.auto == "daily":
+				scheduled_default = _("Once a day")
+			elif self.auto == "xdaily":
+				scheduled_default = _("Every x days")
+				self.daynum = self.config.download_daily_num
+			elif self.auto == "weekly":
+				scheduled_default = _("Once a week")
+				scheduled_day = self.config.download_weekday
+				self.daynum = getWeekdayNum(scheduled_day)
+		self.list.append((_("Scheduled download"), ConfigSelection(self.automatictype, scheduled_default)))
+		if self.auto in ("daily", "xdaily", "weekly"):
+			if self.auto == "weekly":
+				self.list.append((_("Scheduled download on"), ConfigSelection(self.weekdays, scheduled_day)))
+			elif self.auto == "xdaily":
+				self.list.append((_("Scheduled download every x days"), ConfigInteger(default=self.config.download_daily_num, limits = (2, 28))))
 			ttime = localtime()
 			ltime = (ttime[0], ttime[1], ttime[2], self.config.download_daily_hours, self.config.download_daily_minutes, ttime[5], ttime[6], ttime[7], ttime[8])
 			self.list.append((_("Scheduled download at"), ConfigClock(mktime(ltime))))
@@ -237,7 +260,6 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 		self.list.append((_("Show as extension"), ConfigYesNo(self.config.show_extension > 0)))
 		if getImageDistro() != "openvix":
 			self.list.append((_("Show 'Force reload' as plugin"), ConfigYesNo(self.config.show_force_reload_as_plugin > 0)))
-
 		self["config"].list = self.list
 		self["config"].setList(self.list)
 		self.setInfo()
@@ -249,48 +271,50 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 			i = 1
 		else:
 			i = 0
-
 		if len(self.lamedbs_desc) > 1:
 			self.config.lamedb = self.lamedbs[self.list[i][1].getIndex()]
 			i += 1
-
 		self.config.csv_import_enabled = int(self.list[i][1].getValue())
-
 		if getImageDistro() != "openvix":
 			self.config.force_load_on_boot = int(self.list[i+1][1].getValue())
 		else:
 			i -= 1
 
-		dailycache = self.config.download_daily_enabled
-		standbycache = self.config.download_standby_enabled
-		if getImageDistro() != "openvix":
-			if self.list[i+2][1].getIndex() == 0:
-				self.config.download_daily_enabled = 0
-				self.config.download_standby_enabled = 0
-			elif self.list[i+2][1].getIndex() == 1:
-				self.config.download_daily_enabled = 1
-				self.config.download_standby_enabled = 0
-			else:
-				self.config.download_daily_enabled = 0
-				self.config.download_standby_enabled = 1
-		else:
-			if int(self.list[i+2][1].getIndex()) == 0:
-				self.config.download_daily_enabled = 0
-				self.config.download_standby_enabled = 0
-			elif int(self.list[i+2][1].getIndex()) == 1:
-				self.config.download_daily_enabled = 1
-				self.config.download_standby_enabled = 0
-			elif int(self.list[i+2][1].getIndex()) == 2:
-				self.config.download_daily_enabled = 0
-				self.config.download_standby_enabled = 1
-
-		if dailycache != self.config.download_daily_enabled or standbycache != self.config.download_standby_enabled:
-			redraw = True
-
-		i += 3
-		if dailycache:
-			self.config.download_daily_hours = self.list[i][1].getValue()[0]
-			self.config.download_daily_minutes = self.list[i][1].getValue()[1]
+		saved_auto_download_type = self.config.download_auto
+		i += 2
+		if self.list[i][1].getIndex() == 0:
+			self.config.download_auto = "disabled"
+			self.auto = "disabled"
+		elif self.list[i][1].getIndex() == 1:
+			self.config.download_auto = "weekly"
+			self.auto = "weekly"
+		elif self.list[i][1].getIndex() == 2:
+			self.config.download_auto = "xdaily"
+			self.auto = "xdaily"
+		elif self.list[i][1].getIndex() == 3:
+			self.config.download_auto = "daily"
+			self.auto = "daily"
+		elif getImageDistro() != "openvix" and self.list[i][1].getIndex() == 4:
+			self.config.download_auto = "standby"
+			self.auto = "standby"
+		i += 1
+		if saved_auto_download_type == "weekly":
+			self.config.download_weekday = self.list[i][1].getValue()
+			self.daynum = self.list[i][1].getIndex()
+			i += 1
+			self.config.download_daily_hours = int(self.list[i][1].getValue()[0])
+			self.config.download_daily_minutes = int(self.list[i][1].getValue()[1])
+			i += 1
+		elif saved_auto_download_type == "xdaily":
+			self.config.download_daily_num = self.list[i][1].getValue()
+			self.daynum = self.list[i][1].getValue()
+			i += 1
+			self.config.download_daily_hours = int(self.list[i][1].getValue()[0])
+			self.config.download_daily_minutes = int(self.list[i][1].getValue()[1])
+			i += 1
+		elif saved_auto_download_type == "daily":
+			self.config.download_daily_hours = int(self.list[i][1].getValue()[0])
+			self.config.download_daily_minutes = int(self.list[i][1].getValue()[1])
 			i += 1
 
 		if not self.fastpatch:
@@ -300,12 +324,13 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 
 		self.config.show_plugin = int(self.list[i][1].getValue())
 		self.config.show_extension = int(self.list[i+1][1].getValue())
+
 		if getImageDistro() != "openvix":
 			self.config.show_force_reload_as_plugin = int(self.list[i+2][1].getValue())
 		else:
 			i += 1
 
-		if redraw:
+		if saved_auto_download_type != self.config.download_auto:
 			self.makeList()
 
 	def setInfo(self):
@@ -329,36 +354,50 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 			self["information"].setText(_("Reload epg at every boot.\nNormally it's not necessary but recover epg after an enigma2 crash"))
 			return
 		if index == 4:
-			if self.config.download_standby_enabled:
+			if self.config.download_auto == "standby":
 				self["information"].setText(_("When the decoder is in standby opentv providers will be automatically downloaded every hour.\nXMLTV providers will be always downloaded only once a day"))
 				return
-			elif self.config.download_daily_enabled:
+			elif self.config.download_auto == "weekly":
+				self["information"].setText(_("Download epg once a week"))
+				return
+			elif self.config.download_auto == "xdaily":
+				self["information"].setText(_("Download epg every x days"))
+				return
+			elif self.config.download_auto == "daily":
 				self["information"].setText(_("Download epg once a day"))
 				return
 			else:
 				self["information"].setText(_("Scheduled download disabled"))
 				return
-		if self.config.download_daily_enabled == 0:
+		if self.config.download_auto not in ("weekly", "xdaily"):
 			index += 1
 		if index == 5:
-			if self.config.download_standby_enabled or self.config.download_daily_enabled:
-				self["information"].setText(_("Time for scheduled daily download"))
+			if self.config.download_auto == "weekly":
+				self["information"].setText(_("Set day for weekly scheduled download"))
 				return
+			elif self.config.download_auto == "xdaily":
+				self["information"].setText(_("Set days number for every x days scheduled download"))
+				return
+		if self.config.download_auto in ("disabled", "standby"):
+			index += 1
+		if index == 6:
+			self["information"].setText(_("Set time for scheduled download"))
+			return
 		if self.fastpatch:
 			index += 2
-		if index == 6:
+		if index == 7:
 			self["information"].setText(_("Automatically reboot the decoder after a scheduled download"))
 			return
-		if index == 7:
+		if index == 8:
 			self["information"].setText(_("Automatically reboot the decoder after a manual download"))
 			return
-		if index == 8:
+		if index == 9:
 			self["information"].setText(_("Show crossepg in plugin menu"))
 			return
-		if index == 9:
+		if index == 10:
 			self["information"].setText(_("Show crossepg in extensions menu"))
 			return
-		if index == 10:
+		if index == 11:
 			self["information"].setText(_("Show crossepg force load in plugin menu"))
 			return
 
@@ -376,7 +415,36 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 		else:
 			self.close()
 
+	def getNextDownloadTime(self):
+		if self.auto == "disabled":
+			return -1
+		nowt = time()
+		now = localtime(nowt)
+		schedule_time = int(mktime((now.tm_year, now.tm_mon, now.tm_mday, self.config.download_daily_hours, self.config.download_daily_minutes, 0, now.tm_wday, now.tm_yday, now.tm_isdst)))
+
+		if self.auto == "weekly":
+			schedule_time += (self.daynum - now.tm_wday)*24*3600
+		
+		nownow = int(time())
+		if schedule_time > 0:
+			if schedule_time < nownow:
+				if self.auto == "weekly":
+					schedule_time += 7*24*3600
+				elif self.auto == "xdaily":
+					schedule_time += self.daynum*24*3600
+				elif self.auto == "daily":
+					schedule_time += 24*3600
+				elif self.auto == "standby":
+					schedule_time += 3600
+					while (int(schedule_time)-30) < nownow:
+						schedule_time += 3600
+			print "[CrossEpg] schedule_time: ", schedule_time
+			return schedule_time
+		else:
+			return -1
+
 	def keySave(self):
+		self.config.next_update_time = self.getNextDownloadTime()
 		self.config.last_full_download_timestamp = 0
 		self.config.last_partial_download_timestamp = 0
 		self.config.configured = 1

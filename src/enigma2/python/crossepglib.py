@@ -51,11 +51,13 @@ class CrossEPG_Config:
 	home_directory = ""
 
 	force_load_on_boot = 0
-	download_daily_enabled = 0
-	download_daily_hours = 4
+	download_auto = "disabled"
+	download_weekday = _("sunday")
+	download_daily_num = 1
+	download_daily_hours = 0
 	download_daily_minutes = 0
-	download_daily_reboot = 1
-	download_standby_enabled = 0
+	next_update_time = -1
+	download_daily_reboot = 0
 	download_manual_reboot = 0
 	csv_import_enabled = 0
 	show_plugin = 1
@@ -103,35 +105,39 @@ class CrossEPG_Config:
 								if len(p) > 0 and os.path.exists("%s/providers/%s.conf" % (self.home_directory, p)):
 									self.providers.append(p)
 						elif key == "force_load_on_boot":
-							self.force_load_on_boot = int(value);
-						elif key == "download_daily_enabled":
-							self.download_daily_enabled = int(value);
+							self.force_load_on_boot = int(value)
+						elif key == "download_auto":
+							self.download_auto = value
+						elif key == "download_weekday":
+							self.download_weekday = value
+						elif key == "download_daily_num":
+							self.download_daily_num = int(value)
 						elif key == "download_daily_hours":
-							self.download_daily_hours = int(value);
+							self.download_daily_hours = int(value)
 						elif key == "download_daily_minutes":
-							self.download_daily_minutes = int(value);
+							self.download_daily_minutes = int(value)
+						elif key == "next_update_time":
+							self.next_update_time = int(value)
 						elif key == "download_daily_reboot":
-							self.download_daily_reboot = int(value);
+							self.download_daily_reboot = int(value)
 						elif key == "download_manual_reboot":
-							self.download_manual_reboot = int(value);
-						elif key == "download_standby_enabled":
-							self.download_standby_enabled = int(value);
+							self.download_manual_reboot = int(value)
 						elif key == "last_partial_download_timestamp":
-							self.last_partial_download_timestamp = int(value);
+							self.last_partial_download_timestamp = int(value)
 						elif key == "last_full_download_timestamp":
-							self.last_full_download_timestamp = int(value);
+							self.last_full_download_timestamp = int(value)
 						elif key == "last_defrag_timestamp":
-							self.last_defrag_timestamp = int(value);
+							self.last_defrag_timestamp = int(value)
 						elif key == "csv_import_enabled":
-							self.csv_import_enabled = int(value);
+							self.csv_import_enabled = int(value)
 						elif key == "show_plugin":
-							self.show_plugin = int(value);
+							self.show_plugin = int(value)
 						elif key == "show_extension":
-							self.show_extension = int(value);
+							self.show_extension = int(value)
 						elif key == "show_force_reload_as_plugin":
-							self.show_force_reload_as_plugin = int(value);
+							self.show_force_reload_as_plugin = int(value)
 						elif key == "configured":
-							self.configured = int(value);
+							self.configured = int(value)
 			except Exception:
 				pass
 
@@ -154,12 +160,14 @@ class CrossEPG_Config:
 		f.write("lamedb=%s\n" % (self.lamedb))
 		f.write("providers=%s\n" % ("|".join(self.providers)))
 		f.write("force_load_on_boot=%d\n" % (self.force_load_on_boot))
-		f.write("download_daily_enabled=%d\n" % (self.download_daily_enabled))
+		f.write("download_auto=%s\n" % (self.download_auto))
+		f.write("download_weekday=%s\n" % (self.download_weekday))
+		f.write("download_daily_num=%d\n" % (self.download_daily_num))
 		f.write("download_daily_hours=%d\n" % (self.download_daily_hours))
 		f.write("download_daily_minutes=%d\n" % (self.download_daily_minutes))
+		f.write("next_update_time=%d\n" % (self.next_update_time))
 		f.write("download_daily_reboot=%d\n" % (self.download_daily_reboot))
 		f.write("download_manual_reboot=%d\n" % (self.download_manual_reboot))
-		f.write("download_standby_enabled=%d\n" % (self.download_standby_enabled))
 		f.write("last_full_download_timestamp=%d\n" % (self.last_full_download_timestamp))
 		f.write("last_partial_download_timestamp=%d\n" % (self.last_partial_download_timestamp))
 		f.write("last_defrag_timestamp=%d\n" % (self.last_defrag_timestamp))
