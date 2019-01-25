@@ -34,6 +34,7 @@ class CrossEPG_Info(Screen):
 		self["version"] = Label("")
 		self["create"] = Label("")
 		self["last_update"] = Label("")
+		self["next_update"] = Label("")
 		self["headersdb_size"] = Label("")
 		self["descriptorsdb_size"] = Label("")
 		self["indexesdb_size"] = Label("")
@@ -61,6 +62,12 @@ class CrossEPG_Info(Screen):
 		else:
 			self.wrapper.init(CrossEPG_Wrapper.CMD_INFO, self.config.db_root)
 
+		next_update_time = self.config.next_update_time
+		if next_update_time == -1:
+			text = _("Next update time: Not scheduled")
+		else:
+			text = _("Next update time: %s") % strftime("%c", localtime(next_update_time))
+		self["next_update"].text = text
 
 	def quit(self):
 		if not self.wrapper.running():
