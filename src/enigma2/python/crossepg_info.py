@@ -1,6 +1,7 @@
-from enigma import getDesktop
+from enigma import getDesktop, eConsoleAppContainer
 
 from Screens.Screen import Screen
+from Screens.MessageBox import MessageBox
 
 from Components.Label import Label
 from Components.Button import Button
@@ -48,12 +49,13 @@ class CrossEPG_Info(Screen):
 			"red": self.quit,
 			"cancel": self.quit,
 			"menu": self.quit,
+			"blu": self.clean,
 		}, -2)
 
 		self["key_red"] = Button(_("Close"))
 		self["key_green"] = Button("")
 		self["key_yellow"] = Button("")
-		self["key_blue"] = Button("")
+		self["key_blue"] = Button("Clean")
 
 		self.wrapper = CrossEPG_Wrapper()
 		self.wrapper.addCallback(self.__wrapperCallback)
@@ -68,6 +70,9 @@ class CrossEPG_Info(Screen):
 		else:
 			text = _("Next update time: %s") % strftime("%c", localtime(next_update_time))
 		self["next_update"].text = text
+
+		self.container = eConsoleAppContainer()
+		self.container.appClosed.append(self.appClosed)
 
 	def quit(self):
 		if not self.wrapper.running():
@@ -96,4 +101,25 @@ class CrossEPG_Info(Screen):
 			self["last_update"].text = _("Last update time: %s") % (param)
 		elif event == CrossEPG_Wrapper.INFO_VERSION:
 			self["version"].text = _("Version: %s") % (param)
+
+	def appClosed(self, retval):
+		self.container = None
+		self.close()
+
+	def cleanConfirm(self, result):
+		if not result:
+			return
+		if not self.wrapper.running():
+			if os.path.exists("/usr/bin/clean_epg"):
+				cmd = "sh /usr/bin/clean_epg"
+				if self.container.execute(str(cmd)):
+					self.appClosed(-1)
+			else:
+				self.session.open(MessageBox, _("Cleaner not found! Please provide '/usr/bin/clean_epg' script."), type = MessageBox.TYPE_INFO, timeout = 5)
+
+	def clean(self):
+		if os.path.exists("%s" % (self.config.db_root)):
+			self.session.openWithCallback(self.cleanConfirm, MessageBox, _("You are stopping enigma and deleting epg related data files. Really want to do it?"))
+		else:
+			self.session.open(MessageBox, _("CrossEPG dbroot '%s' not present!") % (self.config.db_root), type = MessageBox.TYPE_INFO, timeout = 5)
 
