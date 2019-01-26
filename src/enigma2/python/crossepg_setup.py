@@ -95,13 +95,13 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 			self.automatictype.append(_("Every hour (only in standby)"))
 
 		# make weekday entries
-		self.weekdays.append(_("sunday"))
 		self.weekdays.append(_("monday"))
 		self.weekdays.append(_("tuesday"))
 		self.weekdays.append(_("wednesday"))
 		self.weekdays.append(_("thursday"))
 		self.weekdays.append(_("friday"))
 		self.weekdays.append(_("saturday"))
+		self.weekdays.append(_("sunday"))
 
 		self.onChangedEntry = [ ]
 		self.list = []
@@ -424,7 +424,8 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 
 		if self.auto == "weekly":
 			schedule_time += (self.daynum - now.tm_wday)*24*3600
-		
+			print "[CrossEpg_Setup] NextDownloadTime - scheduled weekday: %d - today weekday: %d" % (self.daynum, now.tm_wday)
+
 		nownow = int(time())
 		if schedule_time > 0:
 			if schedule_time < nownow:
@@ -438,7 +439,7 @@ class CrossEPG_Setup(ConfigListScreen, Screen):
 					schedule_time += 3600
 					while (int(schedule_time)-30) < nownow:
 						schedule_time += 3600
-			print "[CrossEpg] schedule_time: ", schedule_time
+			print "[CrossEpg_Setup] schedule_time: %d" % schedule_time
 			return schedule_time
 		else:
 			return -1

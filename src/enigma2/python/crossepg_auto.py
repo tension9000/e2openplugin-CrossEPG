@@ -16,8 +16,8 @@ from time import *
 import os
 
 def getWeekdayNum(wday):
-	print "[CrossEPG_Auto] wday: ", wday
-	weekdays = {_('monday'): 1, _('tuesday'): 2, _('wednesday'): 3, _('thursday'): 4, _('friday'): 5, _('saturday'): 6, _('sunday'): 0}
+	print "[CrossEPG_Auto] getWeekdayNum: ", wday
+	weekdays = {_('monday'): 0, _('tuesday'): 1, _('wednesday'): 2, _('thursday'): 3, _('friday'): 4, _('saturday'): 5, _('sunday'): 6}
 	return weekdays[wday]
 
 retrycount = 0
