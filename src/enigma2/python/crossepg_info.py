@@ -110,12 +110,12 @@ class CrossEPG_Info(Screen):
 		if not result:
 			return
 		if not self.wrapper.running():
-			if os.path.exists("/usr/bin/clean_epg"):
-				cmd = "sh /usr/bin/clean_epg"
+			if os.path.exists("/usr/bin/clean_epg_data"):
+				cmd = "sh /usr/bin/clean_epg_data -c"
 				if self.container.execute(str(cmd)):
 					self.appClosed(-1)
 			else:
-				self.session.open(MessageBox, _("Cleaner not found! Please provide '/usr/bin/clean_epg' script."), type = MessageBox.TYPE_INFO, timeout = 5)
+				self.session.open(MessageBox, _("Cleaner not found! Please provide '/usr/bin/clean_epg_data' script."), type = MessageBox.TYPE_INFO, timeout = 5)
 
 	def clean(self):
 		if os.path.exists("%s" % (self.config.db_root)):
