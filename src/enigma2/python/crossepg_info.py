@@ -49,7 +49,7 @@ class CrossEPG_Info(Screen):
 			"red": self.quit,
 			"cancel": self.quit,
 			"menu": self.quit,
-			"blu": self.clean,
+			"blue": self.clean,
 		}, -2)
 
 		self["key_red"] = Button(_("Close"))
@@ -110,14 +110,15 @@ class CrossEPG_Info(Screen):
 		if not result:
 			return
 		if not self.wrapper.running():
-			if os.path.exists("/usr/bin/clean_epg_data"):
-				cmd = "sh /usr/bin/clean_epg_data -c"
-				if self.container.execute(str(cmd)):
-					self.appClosed(-1)
-			else:
-				self.session.open(MessageBox, _("Cleaner not found! Please provide '/usr/bin/clean_epg_data' script."), type = MessageBox.TYPE_INFO, timeout = 5)
+			self.container.execute(str("sh /usr/bin/clean_epg_data -c"))
+			self.appClosed(-1)
+			from Screens.Standby import TryQuitMainloop
+			session.open(TryQuitMainloop, 3)
 
 	def clean(self):
+		if not os.path.exists("/usr/bin/clean_epg_data"):
+			self.session.open(MessageBox, _("Cleaner not found! Please provide '/usr/bin/clean_epg_data' script."), type = MessageBox.TYPE_INFO, timeout = 5)
+			return
 		if os.path.exists("%s" % (self.config.db_root)):
 			self.session.openWithCallback(self.cleanConfirm, MessageBox, _("You are stopping enigma and deleting epg related data files. Really want to do it?"))
 		else:
