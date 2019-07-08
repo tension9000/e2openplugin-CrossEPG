@@ -3,19 +3,11 @@ from crossepglib import CrossEPG_Config
 from crossepg_main import crossepg_main
 from crossepg_locale import _
 from Plugins.Plugin import PluginDescriptor
-from boxbranding import getImageDistro
 
 def setup(menuid, **kwargs):
-	if getImageDistro() in ("egami", "miraclebox", "openatv", "openbh", "openhdf", "openplus", "openvix"):
-		if menuid == "epg":
-			return [("CrossEPG", crossepg_main.setup, "crossepg", None)]
-		else:
-			return []
-	else:
-		if menuid == "setup":
-			return [("CrossEPG", crossepg_main.setup, "crossepg", None)]
-		else:
-			return []
+    if menuid in ("epg", "epg_menu",):
+        return [("CrossEPG", crossepg_main.setup, "crossepg", None)]
+    return []
 
 def call_downloader(session, **kwargs):
 	crossepg_main.downloader(session)
