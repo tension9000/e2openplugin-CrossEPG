@@ -99,7 +99,7 @@ class CrossEPG_Rytec_Update(Screen):
 			import urllib2
 			import gzip
 			from StringIO import StringIO
-			url = "https://rytec.ricx.nl/epg_data/sources/crossepgsources.gz"
+			url = "http://epgalfasite.dyndns.tv/crossepgsources.gz"
 			distro = getImageDistro()
 			if distro == "openvix":
 				url = "http://www.openvix.co.uk/crossepgsources.gz"
